@@ -1,0 +1,22 @@
+.Polaris-Card__Section {
+    .Polaris-Page {
+        .Polaris-Page__Content {
+            .text-first {
+                display: flex;
+                justify-content: space-between;
+                margin: 10px 0 10px 0;
+
+                .btn-add {
+                    button {
+                        background-color: #008060;
+                        color: #fff;
+                    }
+                }
+            }
+        }
+
+        .Polaris-ButtonGroup--segmented {
+            margin-left: 90%;
+        }
+    }
+}
