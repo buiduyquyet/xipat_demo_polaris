@@ -1,19 +1,17 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
     TextField,
     Filters,
     Button,
-    Card,
     ResourceList,
-    Avatar,
     ResourceItem,
-    Text,
     SettingToggle,
     Page,
-    Grid,
     Layout,
     Pagination,
-    Columns,
+    Stack,
+    Text,
+    LegacyCard,
 } from '@shopify/polaris';
 import { DeleteMinor, EditMajor } from '@shopify/polaris-icons';
 import './pixel-manager.scss'
@@ -46,15 +44,25 @@ const PixelManager = () => {
         plural: 'pixel',
     };
 
-    const items = [
+    const [checked, setchecked] = useState(false);
+
+    const handleChangeToggle = () => {
+        setchecked(!checked);
+    }
+
+    const [items, setItems] = useState([
         {
             id: 112,
             url: '#',
-            name: 'Art To Cart',
+            name: 'Art To Cart 112',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
+            isActive: false,
             btn: (
-                <ToggleSwitch />
+                <ToggleSwitch
+                    checked={checked}
+                    onChangeToggle={handleChangeToggle}
+                />
             ),
             edited: (
                 <>
@@ -66,11 +74,15 @@ const PixelManager = () => {
         {
             id: 113,
             url: '#',
-            name: 'Art To Cart',
+            name: 'Art To Cart 113',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
+            isActive: false,
             btn: (
-                <ToggleSwitch />
+                <ToggleSwitch
+                    checked={checked}
+                    onChangeToggle={handleChangeToggle}
+                />
             ),
             edited: (
                 <>
@@ -82,11 +94,15 @@ const PixelManager = () => {
         {
             id: 114,
             url: '#',
-            name: 'Art To Cart',
+            name: 'Art To Cart 114',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
+            isActive: false,
             btn: (
-                <ToggleSwitch />
+                <ToggleSwitch
+                    checked={checked}
+                    onChangeToggle={handleChangeToggle}
+                />
             ),
             edited: (
                 <>
@@ -98,11 +114,15 @@ const PixelManager = () => {
         {
             id: 115,
             url: '#',
-            name: 'Art To Cart',
+            name: 'Art To Cart 115',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
+            isActive: false,
             btn: (
-                <ToggleSwitch />
+                <ToggleSwitch
+                    checked={checked}
+                    onChangeToggle={handleChangeToggle}
+                />
             ),
             edited: (
                 <>
@@ -111,23 +131,38 @@ const PixelManager = () => {
                 </>
             ),
         },
-    ];
+    ]);
 
-    const promotedBulkActions = [
-        {
-            content: 'Actions',
-            onAction: () => console.log('Todo: implement bulk edit'),
-        },
-    ];
+    console.log("Items: ", items)
 
     const bulkActions = [
         {
             content: 'Set as active',
-            onAction: () => console.log('active'),
+            onAction: () => {
+                // console.log("Select Item: >>", selectedItems)
+                let newItems = [];
+
+                items.map((item) => {
+                    if (selectedItems.includes(item.id)) {
+                        // item.isActive = true
+                        item.btn = (
+                            <ToggleSwitch
+                                checked={true}
+                                onChangeToggle={handleChangeToggle}
+                            />
+                        )
+                    }
+                    newItems.push(item)
+                })
+                console.log("New Items", newItems)
+                setItems([...newItems])
+            },
         },
         {
             content: 'Set as draft',
-            onAction: () => console.log('draft'),
+            onAction: () => {
+                console.log("draft")
+            },
         },
         {
             content: 'Delete pixel',
@@ -169,6 +204,10 @@ const PixelManager = () => {
 
     const contentStatus = active ? 'Disable' : 'Enabled';
     const textStatus = active ? 'enabled' : 'disable';
+    useEffect(() => {
+        console.log("Items: ", items)
+    }, [items])
+
     return (
         <Page>
             <SettingToggle
@@ -196,9 +235,7 @@ const PixelManager = () => {
                 </div>
             </Layout.Section>
 
-
-
-            <Card>
+            <LegacyCard>
                 <ResourceList
                     resourceName={resourceName}
                     items={items}
@@ -206,15 +243,10 @@ const PixelManager = () => {
                     renderItem={renderItem}
                     selectedItems={selectedItems}
                     onSelectionChange={setSelectedItems}
-                    promotedBulkActions={promotedBulkActions}
                     bulkActions={bulkActions}
                     filterControl={filterControl}
                 />
-            </Card>
-            {/* <Layout.Section>
-                <OptionList />
-            </Layout.Section> */}
-
+            </LegacyCard>
 
             <Layout.Section fullWidth>
                 <Pagination
@@ -231,42 +263,20 @@ const PixelManager = () => {
         </Page>
     )
 
-
-
-
     function renderItem(item) {
-        const { id, url, name, pixel, code, btn, edited } = item;
+        const { id, name, pixel, code, isActive, btn, edited } = item;
         return (
-            <ResourceItem
-                id={id}
-            >
-                <div className='resource-item' style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <ResourceItem id={id}>
+                <Stack alignment='center' distribution='equalSpacing'>
                     <span>{name}</span>
                     <span>{pixel}</span>
                     <span>{code}</span>
                     <span>{btn}</span>
                     <span>{edited}</span>
-                </div>
+                </Stack>
             </ResourceItem>
 
         );
-    }
-
-    function disambiguateLabel(key, value) {
-        switch (key) {
-            case 'taggedWith3':
-                return `Tagged with ${value}`;
-            default:
-                return value;
-        }
-    }
-
-    function isEmpty(value) {
-        if (Array.isArray(value)) {
-            return value.length === 0;
-        } else {
-            return value === '' || value == null;
-        }
     }
 }
 
