@@ -46,10 +46,7 @@ const PixelManager = () => {
 
     const [checked, setchecked] = useState(false);
 
-    const handleChangeToggle = () => {
-        setchecked(!checked);
-    }
-
+    let newItems = [];
     const [items, setItems] = useState([
         {
             id: 112,
@@ -57,13 +54,7 @@ const PixelManager = () => {
             name: 'Art To Cart 112',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
-            isActive: false,
-            btn: (
-                <ToggleSwitch
-                    checked={checked}
-                    onChangeToggle={handleChangeToggle}
-                />
-            ),
+            isActive: checked,
             edited: (
                 <>
                     <Button icon={EditMajor} accessibilityLabel="Edit item" />
@@ -78,12 +69,6 @@ const PixelManager = () => {
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
             isActive: false,
-            btn: (
-                <ToggleSwitch
-                    checked={checked}
-                    onChangeToggle={handleChangeToggle}
-                />
-            ),
             edited: (
                 <>
                     <Button icon={EditMajor} accessibilityLabel="Edit item" />
@@ -98,12 +83,6 @@ const PixelManager = () => {
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
             isActive: false,
-            btn: (
-                <ToggleSwitch
-                    checked={checked}
-                    onChangeToggle={handleChangeToggle}
-                />
-            ),
             edited: (
                 <>
                     <Button icon={EditMajor} accessibilityLabel="Edit item" />
@@ -118,12 +97,6 @@ const PixelManager = () => {
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
             isActive: false,
-            btn: (
-                <ToggleSwitch
-                    checked={checked}
-                    onChangeToggle={handleChangeToggle}
-                />
-            ),
             edited: (
                 <>
                     <Button icon={EditMajor} accessibilityLabel="Edit item" />
@@ -133,35 +106,34 @@ const PixelManager = () => {
         },
     ]);
 
-    console.log("Items: ", items)
 
     const bulkActions = [
         {
             content: 'Set as active',
             onAction: () => {
-                // console.log("Select Item: >>", selectedItems)
-                let newItems = [];
-
                 items.map((item) => {
                     if (selectedItems.includes(item.id)) {
-                        // item.isActive = true
-                        item.btn = (
-                            <ToggleSwitch
-                                checked={true}
-                                onChangeToggle={handleChangeToggle}
-                            />
-                        )
+                        item.isActive = true
                     }
                     newItems.push(item)
                 })
                 console.log("New Items", newItems)
+                setRender(false)
                 setItems([...newItems])
             },
         },
         {
             content: 'Set as draft',
             onAction: () => {
-                console.log("draft")
+                items.map((item) => {
+                    if (selectedItems.includes(item.id)) {
+                        item.isActive = false
+                    }
+                    console.log(item.isActive)
+                    newItems.push(item)
+                })
+                setRender(false)
+                setItems([...newItems])
             },
         },
         {
@@ -204,9 +176,12 @@ const PixelManager = () => {
 
     const contentStatus = active ? 'Disable' : 'Enabled';
     const textStatus = active ? 'enabled' : 'disable';
+
+    const [render, setRender] = useState(true);
     useEffect(() => {
-        console.log("Items: ", items)
-    }, [items])
+        !render && setRender(true);
+        console.log("Check: ", checked)
+    }, [render, checked]);
 
     return (
         <Page>
@@ -236,16 +211,18 @@ const PixelManager = () => {
             </Layout.Section>
 
             <LegacyCard>
-                <ResourceList
-                    resourceName={resourceName}
-                    items={items}
-                    showHeader
-                    renderItem={renderItem}
-                    selectedItems={selectedItems}
-                    onSelectionChange={setSelectedItems}
-                    bulkActions={bulkActions}
-                    filterControl={filterControl}
-                />
+                {
+                    render && <ResourceList
+                        resourceName={resourceName}
+                        items={items}
+                        showHeader
+                        renderItem={renderItem}
+                        selectedItems={selectedItems}
+                        onSelectionChange={setSelectedItems}
+                        bulkActions={bulkActions}
+                        filterControl={filterControl}
+                    />
+                }
             </LegacyCard>
 
             <Layout.Section fullWidth>
@@ -264,15 +241,14 @@ const PixelManager = () => {
     )
 
     function renderItem(item) {
-        const { id, name, pixel, code, isActive, btn, edited } = item;
         return (
-            <ResourceItem id={id}>
+            <ResourceItem id={item.id}>
                 <Stack alignment='center' distribution='equalSpacing'>
-                    <span>{name}</span>
-                    <span>{pixel}</span>
-                    <span>{code}</span>
-                    <span>{btn}</span>
-                    <span>{edited}</span>
+                    <span>{item.name}</span>
+                    <span>{item.pixel}</span>
+                    <span>{item.code}</span>
+                    <ToggleSwitch checked={item.isActive} />
+                    <span>{item.edited}</span>
                 </Stack>
             </ResourceItem>
 
