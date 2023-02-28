@@ -106,7 +106,6 @@ const PixelManager = () => {
         },
     ]);
 
-
     const bulkActions = [
         {
             content: 'Set as active',
@@ -117,7 +116,6 @@ const PixelManager = () => {
                     }
                     newItems.push(item)
                 })
-                console.log("New Items", newItems)
                 setRender(false)
                 setItems([...newItems])
             },
@@ -125,11 +123,10 @@ const PixelManager = () => {
         {
             content: 'Set as draft',
             onAction: () => {
-                items.map((item) => {
+                items.forEach((item) => {
                     if (selectedItems.includes(item.id)) {
                         item.isActive = false
                     }
-                    console.log(item.isActive)
                     newItems.push(item)
                 })
                 setRender(false)
@@ -138,9 +135,73 @@ const PixelManager = () => {
         },
         {
             content: 'Delete pixel',
-            onAction: () => console.log('delete'),
+            onAction: () => {
+                const newItems = items.filter((item) => !selectedItems.includes(item.id))
+                setItems([...newItems])
+            },
         },
     ];
+    const bulkActions_noActive = [
+        {
+            content: 'Set as draft',
+            onAction: () => {
+                items.map((item) => {
+                    if (selectedItems.includes(item.id)) {
+                        item.isActive = false
+                    }
+                    newItems.push(item)
+                })
+                setRender(false)
+                setItems([...newItems])
+            },
+        },
+        {
+            content: 'Delete pixel',
+            onAction: () => {
+                const newItems = items.filter((item) => !selectedItems.includes(item.id))
+                setItems([...newItems])
+            },
+        },
+    ];
+    const bulkActions_noDraf = [
+        {
+            content: 'Set as active',
+            onAction: () => {
+                items.map((item) => {
+                    if (selectedItems.includes(item.id)) {
+                        item.isActive = true
+                    }
+                    newItems.push(item)
+                })
+                setRender(false)
+                setItems([...newItems])
+            },
+        },
+        {
+            content: 'Delete pixel',
+            onAction: () => {
+                const newItems = items.filter((item) => !selectedItems.includes(item.id))
+                setSelectedItems([])
+                setItems([...newItems])
+            },
+        },
+    ];
+
+    const handleCheckStatus = (type) => {
+        let active = false;
+        let draft = false;
+        items.forEach(item => {
+            if (selectedItems.includes(item.id)) {
+                if (item.isActive === false) {
+                    active = true;
+                }
+                if (item.isActive === true) {
+                    draft = true;
+                }
+            }
+        });
+        return type === 'active' ? active : draft;
+    }
 
     const filters = [
         {
@@ -177,10 +238,19 @@ const PixelManager = () => {
     const contentStatus = active ? 'Disable' : 'Enabled';
     const textStatus = active ? 'enabled' : 'disable';
 
+    const handleChangeToggle = (id) => {
+        let newItems = items
+        newItems.forEach((item) => {
+            if (item.id === id) {
+                item.isActive = !item.isActive
+            }
+        })
+        setItems([...newItems]);
+    }
+
     const [render, setRender] = useState(true);
     useEffect(() => {
         !render && setRender(true);
-        console.log("Check: ", checked)
     }, [render, checked]);
 
     return (
@@ -212,14 +282,15 @@ const PixelManager = () => {
 
             <LegacyCard>
                 {
-                    render && <ResourceList
+                    // render &&
+                    <ResourceList
                         resourceName={resourceName}
                         items={items}
                         showHeader
                         renderItem={renderItem}
                         selectedItems={selectedItems}
                         onSelectionChange={setSelectedItems}
-                        bulkActions={bulkActions}
+                        bulkActions={!handleCheckStatus('active') ? bulkActions_noActive : !handleCheckStatus('draft') ? bulkActions_noDraf : bulkActions}
                         filterControl={filterControl}
                     />
                 }
@@ -247,7 +318,7 @@ const PixelManager = () => {
                     <span>{item.name}</span>
                     <span>{item.pixel}</span>
                     <span>{item.code}</span>
-                    <ToggleSwitch checked={item.isActive} />
+                    <ToggleSwitch checked={item.isActive} handleChangeToggle={() => handleChangeToggle(item.id)} />
                     <span>{item.edited}</span>
                 </Stack>
             </ResourceItem>

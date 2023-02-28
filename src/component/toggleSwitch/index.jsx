@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import './toggle-switch.scss'
 
-const ToggleSwitch = ({ checked }) => {
-    const [data, setData] = useState(checked);
-    const handleChangeToggle = () => {
-        setData(!data);
-    }
+const ToggleSwitch = ({ checked, handleChangeToggle }) => {
+    // const [data, setData] = useState(checked);
+
 
     return (
         <label className="toggle">
-            <input name='toggle' type="checkbox" checked={data} onChange={handleChangeToggle} />
+            <input name='toggle' type="checkbox" checked={checked} onChange={handleChangeToggle} />
             <span className="slider"></span>
             <span className="labels" data-on="ON" data-off="OFF"></span>
         </label>
