@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react'
 import './toggle-switch.scss'
 
 const ToggleSwitch = ({ checked, handleChangeToggle }) => {
-    // const [data, setData] = useState(checked);
-
 
     return (
         <label className="toggle">

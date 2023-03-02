@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import {
-    TextField,
     Filters,
     Button,
     ResourceList,
@@ -12,37 +11,48 @@ import {
     Stack,
     Text,
     LegacyCard,
+    ActionList,
+    Popover,
+    OptionList,
 } from '@shopify/polaris';
 import { DeleteMinor, EditMajor } from '@shopify/polaris-icons';
 import './pixel-manager.scss'
-import ToggleSwitch from '../../component/toggleSwitch';
-import OptionList from '../../component/optionList';
-
+import ToggleSwitch from '../../component/ToggleSwitch';
+import ModalComponent from '../../component/Modal';
+import FormPixel from '../../component/Form';
 
 const PixelManager = () => {
+    const resourceName = {
+        singular: '',
+        plural: 'by event name',
+    };
     const [selectedItems, setSelectedItems] = useState([]);
-    const [taggedWith, setTaggedWith] = useState('');
     const [queryValue, setQueryValue] = useState(null);
 
-    const handleTaggedWithChange = useCallback(
-        (value) => setTaggedWith(value),
-        [],
-    );
-    const handleQueryValueChange = useCallback(
-        (value) => setQueryValue(value),
-        [],
-    );
-    const handleTaggedWithRemove = useCallback(() => setTaggedWith(null), []);
-    const handleQueryValueRemove = useCallback(() => setQueryValue(null), []);
-    const handleClearAll = useCallback(() => {
-        handleTaggedWithRemove();
-        handleQueryValueRemove();
-    }, [handleQueryValueRemove, handleTaggedWithRemove]);
+    // Modal
+    const [open, setOpen] = useState(false);
+    const handleOpenModel = () => {
+        setOpen(true);
+    }
 
-    const resourceName = {
-        singular: 'pixel',
-        plural: 'pixel',
-    };
+    const handleCloseModal = () => {
+        setOpen(false);
+    }
+
+    // Settting toggle
+    const [active, setActive] = useState(false);
+    const handleToggle = useCallback(() => setActive((active) => !active), []);
+    const contentStatus = active ? 'Disable' : 'Enabled';
+    const textStatus = active ? 'enabled' : 'disable';
+
+    // Popover
+    const [popoverActive, setPopoverActive] = useState(false);
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [limit, setLimit] = useState(5);
+    const indexOfLastPost = currentPage * limit;
+    const indexOfFirstPost = indexOfLastPost - limit;
 
     const [checked, setchecked] = useState(false);
 
@@ -51,7 +61,7 @@ const PixelManager = () => {
         {
             id: 112,
             url: '#',
-            name: 'Art To Cart 112',
+            name: 'Add to cart',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
             isActive: checked,
@@ -65,7 +75,7 @@ const PixelManager = () => {
         {
             id: 113,
             url: '#',
-            name: 'Art To Cart 113',
+            name: 'Purchase',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
             isActive: false,
@@ -79,7 +89,7 @@ const PixelManager = () => {
         {
             id: 114,
             url: '#',
-            name: 'Art To Cart 114',
+            name: 'Added payment into',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
             isActive: false,
@@ -93,7 +103,49 @@ const PixelManager = () => {
         {
             id: 115,
             url: '#',
-            name: 'Art To Cart 115',
+            name: 'Site visits 001',
+            pixel: 'Pixel 1',
+            code: "tw-odaxb-oddhg",
+            isActive: false,
+            edited: (
+                <>
+                    <Button icon={EditMajor} accessibilityLabel="Edit item" />
+                    <Button icon={DeleteMinor} accessibilityLabel="Remove item" />
+                </>
+            ),
+        },
+        {
+            id: 116,
+            url: '#',
+            name: 'Site visits 002',
+            pixel: 'Pixel 1',
+            code: "tw-odaxb-oddhg",
+            isActive: false,
+            edited: (
+                <>
+                    <Button icon={EditMajor} accessibilityLabel="Edit item" />
+                    <Button icon={DeleteMinor} accessibilityLabel="Remove item" />
+                </>
+            ),
+        },
+        {
+            id: 117,
+            url: '#',
+            name: 'Site visits 003',
+            pixel: 'Pixel 1',
+            code: "tw-odaxb-oddhg",
+            isActive: false,
+            edited: (
+                <>
+                    <Button icon={EditMajor} accessibilityLabel="Edit item" />
+                    <Button icon={DeleteMinor} accessibilityLabel="Remove item" />
+                </>
+            ),
+        },
+        {
+            id: 118,
+            url: '#',
+            name: 'Checkout initiated',
             pixel: 'Pixel 1',
             code: "tw-odaxb-oddhg",
             isActive: false,
@@ -106,11 +158,13 @@ const PixelManager = () => {
         },
     ]);
 
+    const [itemsFilter, setItemsFilter] = useState(items);
+
     const bulkActions = [
         {
             content: 'Set as active',
             onAction: () => {
-                items.map((item) => {
+                items.forEach((item) => {
                     if (selectedItems.includes(item.id)) {
                         item.isActive = true
                     }
@@ -145,7 +199,7 @@ const PixelManager = () => {
         {
             content: 'Set as draft',
             onAction: () => {
-                items.map((item) => {
+                items.forEach((item) => {
                     if (selectedItems.includes(item.id)) {
                         item.isActive = false
                     }
@@ -167,7 +221,7 @@ const PixelManager = () => {
         {
             content: 'Set as active',
             onAction: () => {
-                items.map((item) => {
+                items.forEach((item) => {
                     if (selectedItems.includes(item.id)) {
                         item.isActive = true
                     }
@@ -187,6 +241,29 @@ const PixelManager = () => {
         },
     ];
 
+    // Pagination
+    const currentItems = items.slice(indexOfFirstPost, indexOfLastPost)
+
+    const togglePopoverActive = useCallback(() => setPopoverActive((popoverActive) =>
+        !popoverActive
+    ), [],);
+
+    const activator = (
+        <Button onClick={togglePopoverActive} disclosure="select">{limit}</Button>
+    );
+
+    const filterSearch = (text) => {
+        const newItems = items.filter((item) => {
+            return item.name.includes(text)
+        });
+        setItemsFilter([...newItems])
+    }
+
+    const handleQueryValueChange = (value) => {
+        setQueryValue(value)
+        filterSearch(value)
+    };
+
     const handleCheckStatus = (type) => {
         let active = false;
         let draft = false;
@@ -203,41 +280,6 @@ const PixelManager = () => {
         return type === 'active' ? active : draft;
     }
 
-    const filters = [
-        {
-            key: 'taggedWith3',
-            label: 'Pixel Type',
-            filter: (
-                <TextField
-                    label="Pixel Type"
-                    value={taggedWith}
-                    onChange={handleTaggedWithChange}
-                    autoComplete="off"
-                    labelHidden
-                />
-            ),
-            shortcut: true,
-        },
-    ];
-
-    const filterControl = (
-        <Filters
-            queryValue={queryValue}
-            filters={filters}
-            onQueryChange={handleQueryValueChange}
-            onQueryClear={handleQueryValueRemove}
-            onClearAll={handleClearAll}
-        >
-        </Filters>
-    );
-
-    // Settting toggle
-    const [active, setActive] = useState(false);
-    const handleToggle = useCallback(() => setActive((active) => !active), []);
-
-    const contentStatus = active ? 'Disable' : 'Enabled';
-    const textStatus = active ? 'enabled' : 'disable';
-
     const handleChangeToggle = (id) => {
         let newItems = items
         newItems.forEach((item) => {
@@ -247,11 +289,86 @@ const PixelManager = () => {
         })
         setItems([...newItems]);
     }
+    const options = [
+        { value: 'all-selected', label: 'All selected' },
+        { value: 'Add to cart', label: 'Add to cart' },
+        { value: 'Checkout initiated', label: 'Checkout initiated' },
+        { value: 'Content view', label: 'Content view' },
+        { value: 'Page view', label: 'Page view' },
+        { value: 'Purchase', label: 'Purchase' },
+    ]
+    const [selectedOptions, setSelectedOptions] = useState([]);
+
+    const updateSelection = useCallback((selected) => {
+        const newItems = [];
+        if (selected.includes("all-selected")) {
+            options.forEach((item) => {
+                newItems.push(item.value)
+            })
+            setSelectedOptions([...newItems]);
+            filterPixelType(newItems);
+        }
+        else {
+            setSelectedOptions(selected)
+            filterPixelType(selected);
+        }
+    }, [selectedOptions]);
+
+    const handleAccountStatusRemove = useCallback(() => {
+        setSelectedOptions([])
+        setItemsFilter(items)
+    },
+        [],);
+
+    const appliedFilters = !isEmpty(selectedOptions)
+        ? [{
+            key: "taggedWith3",
+            // label: "...",
+            onRemove: handleAccountStatusRemove,
+        }]
+        : [];
+
+    const filters = [
+        {
+            key: 'taggedWith3',
+            label: 'Pixel Type',
+            filter: (
+                <OptionList
+                    onChange={updateSelection}
+                    options={options}
+                    selected={selectedOptions}
+                    allowMultiple
+                />
+            ),
+            shortcut: true,
+        },
+    ];
+
+    const filterPixelType = (selected) => {
+        const newItems = []
+        items.forEach((item) => {
+            if (selected.includes(item.name)) {
+                newItems.push(item)
+            }
+        });
+        setItemsFilter(newItems)
+    }
+
+    const filterControl = (
+        <Filters
+            queryValue={queryValue}
+            filters={filters}
+            appliedFilters={appliedFilters}
+            onQueryChange={handleQueryValueChange}
+        >
+        </Filters>
+    );
 
     const [render, setRender] = useState(true);
     useEffect(() => {
         !render && setRender(true);
-    }, [render, checked]);
+        // console.log(selectedOptions)
+    }, [render, checked, selectedOptions]);
 
     return (
         <Page>
@@ -275,17 +392,31 @@ const PixelManager = () => {
                         <Text variant="headingMd" as='h2'>Pixel Manager</Text>
                     </div>
                     <div className='btn-add'>
-                        <Button>+ Add Pixel</Button>
+                        <Button onClick={handleOpenModel}>+ Add Pixel</Button>
+                        <ModalComponent
+                            title="Add Pixel"
+                            open={open}
+                            onClose={handleCloseModal}
+                            content={
+                                <>
+                                    <FormPixel />
+                                </>
+                            }
+                        />
                     </div>
                 </div>
             </Layout.Section>
 
             <LegacyCard>
                 {
-                    // render &&
+                    render &&
                     <ResourceList
                         resourceName={resourceName}
-                        items={items}
+                        items={
+                            itemsFilter.filter((item, index) => {
+                                return index >= (currentPage - 1) * limit && index < currentPage * limit
+                            })
+                        }
                         showHeader
                         renderItem={renderItem}
                         selectedItems={selectedItems}
@@ -296,25 +427,62 @@ const PixelManager = () => {
                 }
             </LegacyCard>
 
-            <Layout.Section fullWidth>
-                <Pagination
-                    hasPrevious
-                    onPrevious={() => {
-                        console.log('Previous');
-                    }}
-                    hasNext
-                    onNext={() => {
-                        console.log('Next');
-                    }}
-                />
+            <Layout.Section>
+                <div className='pagination'>
+                    <Stack>
+                        <Popover
+                            active={popoverActive}
+                            activator={activator}
+                            autofocusTarget="first-node"
+                            onClose={togglePopoverActive}
+                        >
+                            <ActionList
+                                actionRole="menuitem"
+                                items={[
+                                    {
+                                        content: '5',
+                                        onAction: () => {
+                                            setLimit(5)
+                                        },
+                                    },
+                                    {
+                                        content: '10',
+                                        onAction: () => {
+                                            setLimit(10)
+                                        },
+                                    },
+                                    {
+                                        content: '15',
+                                        onAction: () => {
+                                            setLimit(15)
+                                        },
+                                    }
+                                ]}
+                            />
+                        </Popover>
+                        {
+                            limit > items.length ? "" : <Pagination
+                                hasPrevious={currentPage > 1}
+                                onPrevious={() => {
+                                    setCurrentPage(currentPage - 1)
+                                }}
+                                hasNext={items.length > indexOfLastPost}
+                                onNext={() => {
+                                    setCurrentPage(currentPage + 1)
+                                }}
+                            />
+                        }
+                    </Stack>
+                </div>
             </Layout.Section>
         </Page>
     )
 
     function renderItem(item) {
         return (
+            // Sửa lại CSS phần này
             <ResourceItem id={item.id}>
-                <Stack alignment='center' distribution='equalSpacing'>
+                <Stack alignment='center' distribution='fillEvenly'>
                     <span>{item.name}</span>
                     <span>{item.pixel}</span>
                     <span>{item.code}</span>
@@ -324,6 +492,13 @@ const PixelManager = () => {
             </ResourceItem>
 
         );
+    }
+    function isEmpty(value) {
+        if (Array.isArray(value)) {
+            return value.length === 0;
+        } else {
+            return value === '' || value == null;
+        }
     }
 }
 

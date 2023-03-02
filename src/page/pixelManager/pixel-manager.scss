@@ -1,26 +1,47 @@
-.Polaris-Card__Section {
-    .Polaris-Page {
-        .Polaris-Page__Content {
-            .text-first {
-                display: flex;
-                justify-content: space-between;
-                margin: 10px 0 10px 0;
+.text-first {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0 10px 0;
 
-                .btn-add {
-                    button {
-                        background-color: #008060;
-                        color: #fff;
-                    }
+    .btn-add {
+        button {
+            background-color: #008060;
+            color: #fff;
+        }
+    }
+}
+
+.Polaris-PositionedOverlay {
+    .Polaris-Popover {
+        .Polaris-Stack__Item {
+            .Polaris-Box {
+                ul {
+                    --pc-box-padding-inline-start-xs: unset !important;
                 }
             }
 
-            .Polaris-Columns {
-                align-items: center;
+            .Polaris-Button__Content {
+                color: blue;
             }
         }
-
-        .Polaris-ButtonGroup--segmented {
-            margin-left: 90%;
-        }
     }
+
+    .Polaris-ActionList__Item {
+        --pc-action-list-item-vertical-padding: unset
+    }
+}
+
+
+.Polaris-Columns {
+    align-items: center;
+}
+
+.Polaris-ButtonGroup--segmented {
+    margin-left: 90%;
+}
+
+.pagination {
+    display: flex;
+    justify-content: end;
 }

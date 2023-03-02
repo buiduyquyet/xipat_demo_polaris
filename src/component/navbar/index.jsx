@@ -1,9 +1,9 @@
-import { Card, Tabs } from '@shopify/polaris';
+import { Card, LegacyCard, Tabs } from '@shopify/polaris';
 import './navbar.scss'
 import React, { useCallback, useState } from 'react'
-import PixelManager from '../../page/pixelManager';
-import Pricing from '../../page/pricing';
-import Document from '../../page/document';
+import PixelManager from '../../page/PixelManager';
+import Pricing from '../../page/Pricing';
+import Document from '../../page/Document';
 
 const Navbar = () => {
     const [selected, setSelected] = useState(0);
@@ -47,15 +47,15 @@ const Navbar = () => {
 
     return (
         <>
-            <Card className="navbar">
+            <LegacyCard className="navbar">
                 <Tabs className="navbar-tab" tabs={tabs} selected={selected} onSelect={handleTabChange}>
-                    <Card.Section>
+                    <LegacyCard.Section>
                         {
                             renderSwitch(selected)
                         }
-                    </Card.Section>
+                    </LegacyCard.Section>
                 </Tabs>
-            </Card>
+            </LegacyCard>
         </>
     );
 }
