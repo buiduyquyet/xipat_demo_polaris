@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import './toggle-switch.scss'
 
 const ToggleSwitch = ({ checked, handleChangeToggle }) => {
-
     return (
         <label className="toggle">
             <input name='toggle' type="checkbox" checked={checked} onChange={handleChangeToggle} />

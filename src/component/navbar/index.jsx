@@ -4,6 +4,7 @@ import React, { useCallback, useState } from 'react'
 import PixelManager from '../../page/PixelManager';
 import Pricing from '../../page/Pricing';
 import Document from '../../page/Document';
+import PixelManagerTable from '../../page/PixelMangerTable';
 
 const Navbar = () => {
     const [selected, setSelected] = useState(0);

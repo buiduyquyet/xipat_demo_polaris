@@ -15,16 +15,24 @@
 .Polaris-PositionedOverlay {
     .Polaris-Popover {
         .Polaris-Stack__Item {
-            .Polaris-Box {
-                ul {
-                    --pc-box-padding-inline-start-xs: unset !important;
+            cursor: pointer !important;
+
+            // .Polaris-Box {
+            ul {
+                --pc-box-padding-inline-start-xs: 0 !important;
+
+                label {
+                    padding-left: 0;
                 }
             }
-
-            .Polaris-Button__Content {
-                color: blue;
-            }
         }
+
+        .Polaris-Button__Content {
+            color: blue;
+        }
+
+        // }
+
     }
 
     .Polaris-ActionList__Item {
@@ -32,6 +40,9 @@
     }
 }
 
+.Polaris-Filters__TagsContainer {
+    display: none !important;
+}
 
 .Polaris-Columns {
     align-items: center;
